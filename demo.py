@@ -7,6 +7,7 @@ class SudokuNP:
         if string:
             self.create(string)
         self._init_units()
+        self._init_box2unit()
 
     def _init_units(self):
         """Initialize the fundamental units - row, column, and block.
@@ -35,6 +36,20 @@ class SudokuNP:
             self.units[0,count] = [j+3*(i//3) for j in [0,0,0,1,1,1,2,2,2]]
             self.units[1,count] = [j+3*(i%3) for j in [0,1,2,0,1,2,0,1,2]]
             count += 1
+
+    def _init_box2unit(self):
+        """Initialize arrays to map each box to its units.
+        
+        Since we have 9x9 boxes and each box resides in 3 units, our array's shape is (9, 9, 3).
+        The units indices are determined within the function self._init_units(), i.e. in the
+        sequence of row, column, and block units.
+        """
+        self.box2unit = np.empty((9,9,3), dtype=np.int)
+        count = 0
+        for i in range(9):
+            for j in range(9):
+                # for each box, we add the row, column, and box unit indices
+                self.box2unit[i, j] = [i, 9+j, 18 + (i // 3)*3 + (j // 3)]
 
     def create(self, string):
         """Create a 9x9 Sudoku board.
