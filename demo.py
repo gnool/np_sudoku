@@ -88,7 +88,18 @@ class SudokuNP:
             string[filled_indices] = num_indices
             print(string.tostring().decode())
 
+    def eliminate(self):
+        """Eliminate candidates based on filled cells."""
+        board, units = self.board, self.units
+        board_units = board[units[0], units[1], :]
+        units_indices, elements_indices = np.where(np.sum(board_units, axis=2) == 1)
+        _, numbers_indices = np.nonzero(board[units[0, units_indices, elements_indices], units[1, units_indices, elements_indices]])
+        board[units[0, units_indices], units[1, units_indices], numbers_indices[:, np.newaxis]] = 0
+        board[units[0, units_indices, elements_indices], units[1, units_indices, elements_indices], numbers_indices] = 1
+
 
 if __name__ == "__main__":
     sdk = SudokuNP('.2.6.8...58...97......4....37....5..6.......4..8....13....2......98...36...3.6.9.')
     sdk.visualize()
+    sdk.eliminate()
+
