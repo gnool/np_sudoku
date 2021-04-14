@@ -6,6 +6,35 @@ class SudokuNP:
         self.board = None
         if string:
             self.create(string)
+        self._init_units()
+
+    def _init_units(self):
+        """Initialize the fundamental units - row, column, and block.
+        
+        The units are stored in a 3D array where the dimensions correspond to (from first to last):
+            1. row/column indices
+            2. units
+            3. elements in an unit
+
+        The array shape is (2, 27, 9).
+        """
+        self.units = np.empty((2,27,9), dtype=np.int)
+        count = 0
+        # 1. Add row units
+        for i in range(9):
+            self.units[0,count] = [i]*9
+            self.units[1,count] = [j for j in range(9)]
+            count += 1
+        # 2. Add column units
+        for i in range(9):
+            self.units[0,count] = [j for j in range(9)]
+            self.units[1,count] = [i]*9
+            count += 1
+        # 3. Add block units
+        for i in range(9):
+            self.units[0,count] = [j+3*(i//3) for j in [0,0,0,1,1,1,2,2,2]]
+            self.units[1,count] = [j+3*(i%3) for j in [0,1,2,0,1,2,0,1,2]]
+            count += 1
 
     def create(self, string):
         """Create a 9x9 Sudoku board.
