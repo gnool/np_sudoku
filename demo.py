@@ -97,9 +97,19 @@ class SudokuNP:
         board[units[0, units_indices], units[1, units_indices], numbers_indices[:, np.newaxis]] = 0
         board[units[0, units_indices, elements_indices], units[1, units_indices, elements_indices], numbers_indices] = 1
 
+    def is_solved(self):
+        """Return True if Sudoku board is solved, False otherwise.
+        
+        Quoting Peter Norvig:
+        "A puzzle is solved if the squares in each unit are filled with a permutation of the digits 1 to 9."
+        """
+        board, units = self.board, self.units
+        board_units = board[units[0], units[1], :]
+        return np.all(np.sum(board_units, axis=1) == 1)
+
 
 if __name__ == "__main__":
     sdk = SudokuNP('.2.6.8...58...97......4....37....5..6.......4..8....13....2......98...36...3.6.9.')
     sdk.visualize()
     sdk.eliminate()
-
+    print("Puzzle is solved: %s" % sdk.is_solved())
