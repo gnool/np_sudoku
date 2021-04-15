@@ -110,6 +110,17 @@ class SudokuNP:
         board[units[0, units_indices], units[1, units_indices], numbers_indices[:, np.newaxis]] = 0
         board[units[0, units_indices, elements_indices], units[1, units_indices, elements_indices], numbers_indices] = 1
 
+    def find_single(self):
+        """Find numbers that can only occur in one box in an unit."""
+        board, units, box2unit = self.board, self.units, self.box2unit
+        board_units = board[units[0], units[1], :]
+        number_frequency = np.sum(board_units, axis=1)  # sum over elements in units
+        units_indices, numbers_indices = np.where(number_frequency == 1)
+        elements_indices = np.where(board_units[units_indices, :, numbers_indices] == 1)[1]
+        box_units = box2unit[units[0, units_indices, elements_indices], units[1, units_indices, elements_indices]]
+        board[units[0, box_units, :], units[1, box_units, :], numbers_indices[:, np.newaxis, np.newaxis]] = 0
+        board[units[0, units_indices, elements_indices], units[1, units_indices, elements_indices], numbers_indices] = 1
+
     def is_solved(self):
         """Return True if Sudoku board is solved, False otherwise.
         
@@ -125,4 +136,5 @@ if __name__ == "__main__":
     sdk = SudokuNP('.2.6.8...58...97......4....37....5..6.......4..8....13....2......98...36...3.6.9.')
     sdk.visualize()
     sdk.eliminate()
+    sdk.find_single()
     print("Puzzle is solved: %s" % sdk.is_solved())
