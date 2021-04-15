@@ -115,10 +115,13 @@ class SudokuNP:
         """Find numbers that can only occur in one box in an unit."""
         board, units, box2unit = self.board, self.units, self.box2unit
         board_units = board[units[0], units[1], :]
-        number_frequency = np.sum(board_units, axis=1)  # sum over elements in units
+        # form an array of each number's occurence frequency in an unit
+        number_frequency = np.sum(board_units, axis=1)
         units_indices, numbers_indices = np.where(number_frequency == 1)
         elements_indices = np.where(board_units[units_indices, :, numbers_indices] == 1)[1]
         box_units = box2unit[units[0, units_indices, elements_indices], units[1, units_indices, elements_indices]]
+        # remove the single number from all boxes in the units it is in
+        # remove all other numbers from the single's box
         board[units[0, box_units, :], units[1, box_units, :], numbers_indices[:, np.newaxis, np.newaxis]] = 0
         board[units[0, units_indices, elements_indices], units[1, units_indices, elements_indices], :] = 0
         board[units[0, units_indices, elements_indices], units[1, units_indices, elements_indices], numbers_indices] = 1
