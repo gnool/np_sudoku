@@ -77,16 +77,29 @@ class SudokuNP:
         board[row_indices, col_indices, num_indices[filled_indices]] = 1
         self.board = board
 
-    def visualize(self):
+    def visualize(self, simple=False):
         """Visualize sudoku board in 2D ASCII."""
-        for i in range(9):
-            row = self.board[i]
-            string = np.chararray(9)
-            string[:] = '.'
-            filled_indices = np.where(np.sum(row, axis=1) == 1)
-            num_indices = np.nonzero(row[filled_indices])[1]+1
-            string[filled_indices] = num_indices
-            print(string.tostring().decode())
+        if simple:
+            for i in range(9):
+                row = self.board[i]
+                string = np.chararray(9)
+                string[:] = '.'
+                filled_indices = np.where(np.sum(row, axis=1) == 1)
+                numbers = np.nonzero(row[filled_indices])[1]+1
+                string[filled_indices] = numbers
+                print(string.tostring().decode())
+        else:
+            for i in range(9):
+                print('+---'*9+'+')
+                row = self.board[i]
+                filled_indices = np.where(np.sum(row, axis=1) == 1)
+                numbers = np.nonzero(row[filled_indices])[1]+1
+                string = np.chararray(37)
+                string[:] = ' '
+                string[::4] = '|'
+                string[filled_indices[0]*4+2] = numbers
+                print(string.tostring().decode())
+            print('+---'*9+'+')
 
     def eliminate(self):
         """Eliminate candidates based on filled cells."""
