@@ -120,6 +120,7 @@ class SudokuNP:
         elements_indices = np.where(board_units[units_indices, :, numbers_indices] == 1)[1]
         box_units = box2unit[units[0, units_indices, elements_indices], units[1, units_indices, elements_indices]]
         board[units[0, box_units, :], units[1, box_units, :], numbers_indices[:, np.newaxis, np.newaxis]] = 0
+        board[units[0, units_indices, elements_indices], units[1, units_indices, elements_indices], :] = 0
         board[units[0, units_indices, elements_indices], units[1, units_indices, elements_indices], numbers_indices] = 1
 
     def is_solved(self):
