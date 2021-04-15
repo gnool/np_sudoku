@@ -1,3 +1,4 @@
+import json
 import numpy as np
 
 
@@ -133,7 +134,9 @@ class SudokuNP:
 
 
 if __name__ == "__main__":
-    sdk = SudokuNP('.2.6.8...58...97......4....37....5..6.......4..8....13....2......98...36...3.6.9.')
+    with open("examples.json") as f:
+        examples = json.load(f)
+    sdk = SudokuNP(examples['easy'][0]['puzzle'])
     sdk.visualize()
     sdk.eliminate()
     sdk.find_single()
