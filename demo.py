@@ -126,6 +126,52 @@ class SudokuNP:
         board[units[0, units_indices, elements_indices], units[1, units_indices, elements_indices], :] = 0
         board[units[0, units_indices, elements_indices], units[1, units_indices, elements_indices], numbers_indices] = 1
 
+    def find_naked_pairs(self):
+        """Find naked pairs in all units.
+        
+        Naked pairs are two boxes in an unit that are both occupied by the same set of two numbers.
+        This allows us to remove these two numbers from all other elements in the same unit.
+        """
+        board, units, box2unit = self.board, self.units, self.box2unit
+        board_units = board[units[0], units[1], :]
+        # form an array to check if two (different) numbers co-exist in a box
+        number_coexist = board_units[:,:,:,np.newaxis] & board_units[:,:,np.newaxis,:] # 9x9x9x9
+        # find units where a pair of numbers co-exist in at least two boxes
+        unn = np.sum(number_coexist, axis=1)
+        units_indices, num1_indices, num2_indices = np.where(unn >= 2)
+        # filter comparison between a number and itself
+        self_filter = num1_indices != num2_indices
+        units_indices = units_indices[self_filter]
+        num1_indices = num1_indices[self_filter]
+        num2_indices = num2_indices[self_filter]
+        # for each unit above, find the element that is occupied by exactly num1 and num2
+        units_indices_filter, elements_indices = np.where(
+            (np.sum(board_units[units_indices, :, :], axis=2) == 2) & 
+            (board_units[units_indices, :, num1_indices] == 1) & 
+            (board_units[units_indices, :, num2_indices] == 1))
+        units_indices = units_indices[units_indices_filter]
+        num1_indices = num1_indices[units_indices_filter]
+        num2_indices = num2_indices[units_indices_filter]
+        # find which units that have two elements that are occupied by exactly num1 and num2
+        # this translates to finding the identical columns of stacked_indices
+        stacked_indices = np.vstack((units_indices, num1_indices, num2_indices))  # 3 x N
+        bool_array = stacked_indices[:,np.newaxis,:] == stacked_indices[:,:,np.newaxis]
+        match_array = np.sum(bool_array, axis=0)  # N x N
+        col1, col2 = np.where(match_array == 3)
+        # filter by col2 > col1 because if we know column 1 and column 2 are identical, then we
+        # don't need to know that column 2 and column 1 are identical.
+        col1, col2 = col1[col2 > col1], col2[col2 > col1]
+        element_filter = np.hstack((col1, col2))
+        elements_indices = elements_indices[element_filter]
+        units_indices = units_indices[element_filter]
+        num1_indices = num1_indices[element_filter]
+        num2_indices = num2_indices[element_filter]
+        # remove the pair of numbers from all other boxes in the unit
+        board[units[0, units_indices, :], units[1, units_indices, :], num1_indices[:,np.newaxis]] = 0
+        board[units[0, units_indices, :], units[1, units_indices, :], num2_indices[:,np.newaxis]] = 0
+        board[units[0, units_indices, elements_indices], units[1, units_indices, elements_indices], num1_indices] = 1
+        board[units[0, units_indices, elements_indices], units[1, units_indices, elements_indices], num2_indices] = 1
+
     def is_solved(self):
         """Return True if Sudoku board is solved, False otherwise.
         
@@ -140,8 +186,9 @@ class SudokuNP:
 if __name__ == "__main__":
     with open("examples.json") as f:
         examples = json.load(f)
-    sdk = SudokuNP(examples['easy'][0]['puzzle'])
+    sdk = SudokuNP(examples['moderate'][0]['puzzle'])
     sdk.visualize()
     sdk.eliminate()
     sdk.find_single()
+    sdk.find_naked_pairs()
     print("Puzzle is solved: %s" % sdk.is_solved())
