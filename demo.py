@@ -132,7 +132,7 @@ class SudokuNP:
         Naked pairs are two boxes in an unit that are both occupied by the same set of two numbers.
         This allows us to remove these two numbers from all other elements in the same unit.
         """
-        board, units, box2unit = self.board, self.units, self.box2unit
+        board, units = self.board, self.units
         board_units = board[units[0], units[1], :]
         # form an array to check if two (different) numbers co-exist in a box
         number_coexist = board_units[:,:,:,np.newaxis] & board_units[:,:,np.newaxis,:] # 9x9x9x9
